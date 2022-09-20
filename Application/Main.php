@@ -12,6 +12,14 @@ class Main
         $this->ethName = 'eth0';
 
         $this->domainNameEnding = ['com', 'cn'];
+
+        $this->ipv4NetworkOperators = [];
+
+        $this->ipv6NetworkOperators = [
+            '240e' => '中国电信',
+            '2408' => '中国联通',
+            '2409' => '中国移动'
+        ];
     }
 
 
@@ -27,18 +35,15 @@ class Main
 
         foreach (explode(',', $rr) as $value) {
             if (isset($recordIds[$value])) {
-                // 更新
                 $service->updateDnsRecord($recordIds[$value], $type, $value, $ip);
             } else {
-                // 创建
                 $service->createDnsRecord($type, $value, $ip, $domainName);
             }
         }
-        exit;
     }
 
     /**
-     * 验证域名格式
+     * 验证主域名格式
      *
      * @param $domainName
      * @return bool
@@ -55,12 +60,18 @@ class Main
         throw new CliException('域名名称格式错误', 30001);
     }
 
-    private function validateType($type)
+    /**
+     * 根据入参，获取本机对应类型的 IP 地址
+     *
+     * @param $type
+     * @return string
+     * @throws CliException
+     */
+    private function validateType($type): string
     {
         $result = match ($type) {
-            'A' => 'local' === env('app.env') ? '42.193.126.219' : $this->fetchIPAddr($this->getIPv4Addr()),
-            'AAAA' => 'local' === env('app.env') ? 'fe80:0:0:0:0123:0456:0789:0abc' : $this->fetchIPAddr($this->getIPv6Addr()),
-//            'AAAA' => 'local' === env('app.env') ? '2409:8a14:866:8c30:468a:5bff:fe93:bab7' : $this->fetchIPAddr($this->getIPv6Addr()),
+            'A' => $this->fetchIPAddr($this->getIPv4Addr()),
+            'AAAA' => $this->fetchIPAddr($this->getIPv6Addr()),
             default => null
         };
 
@@ -69,7 +80,11 @@ class Main
         return $result;
     }
 
-    private function fetchIPAddr(?string $ip)
+    /**
+     * @param string|null $ip
+     * @return string|null
+     */
+    private function fetchIPAddr(?string $ip): ?string
     {
         return is_null($ip) ? $ip : explodeIpAddr($ip);
     }
@@ -77,9 +92,9 @@ class Main
     /**
      * 获取最新的 IPv4 地址
      *
-     * @return false|string|null
+     * @return string|null
      */
-    private function getIPv4Addr()
+    private function getIPv4Addr(): ?string
     {
         return shell_exec("ifconfig {$this->ethName} | grep inet | grep -vE 'inet6|127|172|192|100|10' | tail -1 | awk '{print $2}'");
     }
@@ -87,13 +102,19 @@ class Main
     /**
      * 获取最新的 IPv6 地址
      *
-     * @return false|string|null
+     * @return string|null
      */
-    private function getIPv6Addr()
+    private function getIPv6Addr(): ?string
     {
         return shell_exec("ifconfig {$this->ethName} | grep inet6 | grep -vE 'fe80|fec0|fc00' | tail -1 | awk '{print $2}'");
     }
 
+    /**
+     * 根据入参，转换成实例
+     *
+     * @param $serverName
+     * @return mixed
+     */
     private function getService($serverName)
     {
         $className = '\App\Services\\' . match ($serverName) {

@@ -14,6 +14,14 @@ class CloudFlare implements DNS
         $this->curl = new Curl($this->baseUrl, ['Authorization:Bearer ' . env('cloudflare.api.token')], true);
     }
 
+    /**
+     * 此方法为 cloudflare 独有
+     * 获取区域 ID
+     *
+     * @param $domainName
+     * @return void
+     * @throws CliException
+     */
     private function getRecordId($domainName)
     {
         $this->zoneId = $this->curl->get('/zones', [
@@ -23,7 +31,11 @@ class CloudFlare implements DNS
     }
 
     /**
-     * @inheritDoc
+     * 获取主域名当前已解析 DNS 列表及对应 ID
+     *
+     * @param string $domainName
+     * @return array
+     * @throws CliException
      */
     public function listDnsRecord(string $domainName): array
     {
@@ -42,7 +54,14 @@ class CloudFlare implements DNS
     }
 
     /**
-     * @inheritDoc
+     * 添加 DNS 解析记录
+     *
+     * @param string $type
+     * @param string $rr
+     * @param string $ip
+     * @param string $domainName
+     * @return mixed|void
+     * @throws CliException
      */
     public function createDnsRecord(string $type, string $rr, string $ip, string $domainName)
     {
@@ -56,15 +75,20 @@ class CloudFlare implements DNS
             ]
         ]);
 
-        if ($response['success']) {
-
-        } else {
+        if (!$response['success']) {
             throw new CliException('服务商错误 - [' . $response['errors'][0]['code'] . '] - ' . $response['errors'][0]['message'], 40101);
         }
     }
 
     /**
-     * @inheritDoc
+     * 更新 DNS 解析记录
+     *
+     * @param string $recordId
+     * @param string $type
+     * @param string $rr
+     * @param string $ip
+     * @return mixed|void
+     * @throws CliException
      */
     public function updateDnsRecord(string $recordId, string $type, string $rr, string $ip)
     {
@@ -74,13 +98,11 @@ class CloudFlare implements DNS
                 'name' => $rr,
                 'content' => $ip,
                 'ttl' => 1,
-                'proxied' => false
+                'proxied' => true
             ]
         ]);
 
-        if ($response['success']) {
-
-        } else {
+        if (!$response['success']) {
             throw new CliException('服务商错误 - [' . $response['errors'][0]['code'] . '] - ' . $response['errors'][0]['message'], 40102);
         }
     }

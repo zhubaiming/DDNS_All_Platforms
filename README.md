@@ -45,7 +45,7 @@
 - **Cli 方式**
 
     ```shell
-    php run.php --serverName=SERVERNAME --type=TYPE --rr=RR --domainName=DOMAINNAME [--remark=REMARK] [--v]
+    php run.php --serverName=SERVERNAME --type=TYPE --rr=RR --domainName=DOMAINNAME [--remark=REMARK]
     ```
 
   参数说明：
@@ -57,6 +57,5 @@
   |rr|String| 是                       |解析主机记录，可同时解析多个，使用 \',\' 进行分割| @,www      |
   |domainName|String| 是                          |域名名称| xxx.com    |
   |remark|String| 否                          |解析记录备注，可同时填写多个，使用 \',\' 进行分割，顺序对应 `rr` 的顺序| 备注1,备注2    |
-  |v|Boolean|否|是否为静默状态：默认为静默状态运行，如需输出到当前命令行界面，添加该参数即可|            |
 
 - **Docker 容器方式**

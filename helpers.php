@@ -1,13 +1,5 @@
 <?php
 
-if (!function_exists('demo')) {
-    function demo()
-    {
-        var_dump('我是根目录下的 helpers 文件中的 demo 函数');
-        exit(0);
-    }
-}
-
 if (!function_exists('env')) {
     function env(?string $key = null)
     {
@@ -25,5 +17,18 @@ if (!function_exists('explodeIpAddr')) {
     function explodeIpAddr(string $ip)
     {
         return explode('/', trim($ip))[0];
+    }
+}
+
+if (!function_exists('log')) {
+    function log(string $text)
+    {
+        if (is_file(__DIR__ . \DIRECTORY_SEPARATOR . 'Logs' . \DIRECTORY_SEPARATOR . date('Y-m-d') . '.log')) {
+            // 文件存在
+            file_put_contents(__DIR__ . \DIRECTORY_SEPARATOR . 'Logs' . \DIRECTORY_SEPARATOR . date('Y-m-d') . '.log', $text, FILE_APPEND);
+        } else {
+            // 文件不存在
+            file_put_contents(__DIR__ . \DIRECTORY_SEPARATOR . 'Logs' . \DIRECTORY_SEPARATOR . date('Y-m-d') . '.log', $text);
+        }
     }
 }

@@ -8,8 +8,7 @@ class Main
 {
     public function __construct()
     {
-        // 要获取地址的网卡名称(enp2s0)
-        $this->ethName = 'eth0';
+        $this->ethName = 'enp2s0';
 
         $this->domainNameEnding = ['com', 'cn'];
 

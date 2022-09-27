@@ -20,7 +20,7 @@ if (
     throw new \App\Exceptions\CliException('缺少必要参数，程序无法继续执行!', 10002);
 }
 
-(new Main())->ddns($args['serverName'], $args['type'], $args['rr'], $args['domainName'], $args['remark']);
+(new Main())->ddns($args['serverName'], $args['type'], $args['rr'], $args['domainName'], $args['remark'] ?? null);
 
-log('[' . $_SERVER['REQUEST_TIME'] . '] - [success] - [0] - ip地址更新完成，并完成解析!' . PHP_EOL . PHP_EOL);
+writelog('[' . $_SERVER['REQUEST_TIME'] . '] - [success] - [0] - ip地址更新完成，并完成解析!' . PHP_EOL . PHP_EOL);
 exit(0);

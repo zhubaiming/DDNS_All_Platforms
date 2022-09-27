@@ -12,7 +12,7 @@ class CliException extends Exception
             set_exception_handler(function ($previous) {
                 $text = '[' . $_SERVER['REQUEST_TIME'] . '] - [error] - [' . $previous->getCode() . '] - ' . $previous->getMessage() . PHP_EOL . PHP_EOL;
                 if (env('app.debug')) echo $text;
-                log($text);
+                writelog($text);
             });
         }
 

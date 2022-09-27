@@ -20,8 +20,8 @@ if (!function_exists('explodeIpAddr')) {
     }
 }
 
-if (!function_exists('log')) {
-    function log(string $text)
+if (!function_exists('writelog')) {
+    function writelog(string $text)
     {
         if (is_file(__DIR__ . \DIRECTORY_SEPARATOR . 'Logs' . \DIRECTORY_SEPARATOR . date('Y-m-d') . '.log')) {
             // 文件存在

@@ -22,7 +22,7 @@ class Main
     }
 
 
-    public function ddns(string $serverName, string $type, string $rr, string $domainName, string $remark)
+    public function ddns(string $serverName, string $type, string $rr, string $domainName, ?string $remark)
     {
         $this->validateDomainName($domainName);
 

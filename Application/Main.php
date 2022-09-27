@@ -105,7 +105,7 @@ class Main
      */
     private function getIPv6Addr(): ?string
     {
-        return shell_exec("ifconfig {$this->ethName} | grep inet6 | grep -vE 'fe80|fec0|fc00' | tail -1 | awk '{print $2}'");
+        return shell_exec("ifconfig {$this->ethName} | grep inet6 | grep -vE 'fe80|fec0|fc00' | tail -1 | awk '{print $3}'");
     }
 
     /**

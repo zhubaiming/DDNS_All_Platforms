@@ -32,3 +32,16 @@ if (!function_exists('writelog')) {
         }
     }
 }
+
+if (!function_exists('local')) {
+    function local(string $key)
+    {
+        $arr = include(__DIR__ . \DIRECTORY_SEPARATOR . 'Locals' . \DIRECTORY_SEPARATOR . env('app.local') . '.php');
+
+        if (array_key_exists($key, $arr)) {
+            return $arr[$key];
+        } else {
+            return '';
+        }
+    }
+}

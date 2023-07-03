@@ -8,7 +8,7 @@ class Main
 {
     public function __construct()
     {
-        $this->ethName = 'enp2s0';
+        $this->ethName = env('eth.name');
 
         $this->domainNameEnding = ['com', 'cn'];
 
@@ -21,7 +21,8 @@ class Main
         ];
     }
 
-
+    // (new Main())->ddns($args['serverName'], $args['type'], $args['rr'], $args['domainName'], $args['remark'] ?? null);
+    // (new Main())->ddns(‘cloudflare', 'AAAA', '@,www', 'xxx.com','备注1,备注2');
     public function ddns(string $serverName, string $type, string $rr, string $domainName, ?string $remark)
     {
         $this->validateDomainName($domainName);
@@ -52,11 +53,13 @@ class Main
     {
         foreach ($this->domainNameEnding as $val) {
             if (preg_match_all('/^[a-zA-Z0-9]+\.' . $val . '/i', $domainName)) {
-                return true;
+                continue;
+            } else {
+                throw new CliException(local('domain_name_error'), 30001);
             }
         }
 
-        throw new CliException('域名名称格式错误', 30001);
+        return true;
     }
 
     /**
@@ -69,23 +72,14 @@ class Main
     private function validateType($type): string
     {
         $result = match ($type) {
-            'A' => $this->fetchIPAddr($this->getIPv4Addr()),
-            'AAAA' => $this->fetchIPAddr($this->getIPv6Addr()),
+            'A' => $this->getIPv4Addr(),
+            'AAAA' => $this->getIPv6Addr(),
             default => null
         };
 
-        if (is_null($result)) throw new CliException('当前类型下(' . $type . ')，没有可供解析的外网ip!', 30002);
+        if (is_null($result)) throw new CliException($type . local('no_ip'), 30002);
 
         return $result;
-    }
-
-    /**
-     * @param string|null $ip
-     * @return string|null
-     */
-    private function fetchIPAddr(?string $ip): ?string
-    {
-        return is_null($ip) ? $ip : explodeIpAddr($ip);
     }
 
     /**
@@ -105,7 +99,19 @@ class Main
      */
     private function getIPv6Addr(): ?string
     {
-        return shell_exec("ifconfig {$this->ethName} | grep inet6 | grep -vE 'fe80|fec0|fc00' | tail -1 | awk '{print $3}'");
+        $ips = explode("\n", shell_exec("ip -o -6 addr show {$this->ethName} | grep -vE 'fe80|fec0|fc00' | grep flags"));
+
+        $inet6 = null;
+        $sec = 0;
+        foreach ($ips as $ip) {
+            $_sec = (int)preg_replace(['/(.*)preferred_lft(\s+)/', '/sec/'], ['', ''], $ip);
+
+            if ($_sec > $sec) {
+                $inet6 = trim(preg_replace(['/(.*)inet6(\s+)/', '/scope(.*)/', '/\/[0-9]+/'], ['', '', ''], $ip));
+            }
+        }
+
+        return $inet6;
     }
 
     /**

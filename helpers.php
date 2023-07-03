@@ -1,9 +1,24 @@
 <?php
 
+if (!function_exists('local')) {
+    function local(string $key)
+    {
+        $local = getenv(strtoupper('app.local')) ?? 'zh';
+
+        $arr = include(__DIR__ . \DIRECTORY_SEPARATOR . 'Locals' . \DIRECTORY_SEPARATOR . $local . '.php');
+
+        if (array_key_exists($key, $arr)) {
+            return $arr[$key];
+        } else {
+            return '';
+        }
+    }
+}
+
 if (!function_exists('env')) {
     function env(?string $key = null)
     {
-        if (null === $key) throw new \App\Exceptions\CliException('变量名不能为空', 20001);
+        if (null === $key) throw new \App\Exceptions\CliException(local('no_variable_name'), 20001);
 
         $result = getenv(strtoupper($key));
 
@@ -29,19 +44,6 @@ if (!function_exists('writelog')) {
         } else {
             // 文件不存在
             file_put_contents(__DIR__ . \DIRECTORY_SEPARATOR . 'Logs' . \DIRECTORY_SEPARATOR . date('Y-m-d') . '.log', $text);
-        }
-    }
-}
-
-if (!function_exists('local')) {
-    function local(string $key)
-    {
-        $arr = include(__DIR__ . \DIRECTORY_SEPARATOR . 'Locals' . \DIRECTORY_SEPARATOR . env('app.local') . '.php');
-
-        if (array_key_exists($key, $arr)) {
-            return $arr[$key];
-        } else {
-            return '';
         }
     }
 }

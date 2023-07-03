@@ -73,7 +73,7 @@ class CloudFlare implements DNS
                 'type' => $type,
                 'name' => $rr,
                 'content' => $ip,
-                'ttl' => 1,
+                'ttl' => env('dns.ttl'),
                 'proxied' => true,
                 'comment' => local('cloudflare_comment')
             ]
@@ -102,7 +102,7 @@ class CloudFlare implements DNS
                 'name' => $rr,
                 'proxied' => true,
                 'type' => $type,
-                'ttl' => 1,
+                'ttl' => env('dns.ttl'),
                 'comment' => local('cloudflare_comment')
             ]
         ]);

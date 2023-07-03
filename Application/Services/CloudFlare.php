@@ -11,7 +11,10 @@ class CloudFlare implements DNS
     {
         $this->baseUrl = 'https://api.cloudflare.com/client/v4';
 
-        $this->curl = new Curl($this->baseUrl, ['Authorization:Bearer ' . env('cloudflare.api.token')], true);
+        $this->curl = new Curl($this->baseUrl, [
+            'X-Auth-Email:' . env('cloudflare.email'),
+            'X-Auth-Key:' . env('cloudflare.api.key')
+        ], true);
     }
 
     /**
@@ -41,7 +44,7 @@ class CloudFlare implements DNS
     {
         $this->getRecordId($domainName);
 
-        $response = $this->curl->get('/zones/' . $this->zoneId . '/dns_records');
+        $response = $this->curl->get('/zones/' . $this->zoneId . '/dns_records', ['per_page' => 50000]);
 
         $result = [];
 
@@ -94,11 +97,11 @@ class CloudFlare implements DNS
     {
         $response = $this->curl->put('/zones/' . $this->zoneId . '/dns_records/' . $recordId, [
             'body' => [
-                'type' => $type,
-                'name' => $rr,
                 'content' => $ip,
-                'ttl' => 1,
-                'proxied' => true
+                'name' => $rr,
+                'proxied' => true,
+                'type' => $type,
+                'ttl' => 1
             ]
         ]);
 
